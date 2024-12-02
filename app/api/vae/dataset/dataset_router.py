@@ -1,5 +1,4 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from pydantic import BaseModel
 import shutil
 import zipfile
 from pathlib import Path
@@ -7,15 +6,12 @@ import os
 import cuid
 
 from app.core.config import settings
+from app.api.vae.schemas import ResponseModel
 
 router = APIRouter()
 
-class UploadResponse(BaseModel):
-    status: str
-    message: str
-    process_id: str
 
-@router.post("/upload_zip/", response_model=UploadResponse)
+@router.post("/upload_zip/", response_model=ResponseModel)
 async def upload_zip(zip_file: UploadFile = File(...)):
     UPLOAD_DIR = settings.uploaded_dataset_dir
     EXTRACT_DIR = settings.extracted_dataset_dir

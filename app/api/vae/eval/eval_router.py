@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Path
 from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
 import torch
 import os
 from PIL import Image
 import numpy as np
 
 from app.ai_models.vae_model import VAE
+from app.api.vae.schemas import ResponseModel
 from app.core.config import settings
 
 router = APIRouter()
@@ -14,7 +14,7 @@ router = APIRouter()
 OUTPUT_DIR = settings.generated_images_dir
 
 
-@router.post("/evaluate/")
+@router.post("/", response_model=ResponseModel)
 async def evaluate_vae(process_id: str, num_images: int = 1):
     SAVE_MODEL_DIR = settings.save_model_dir
 
@@ -59,7 +59,10 @@ async def evaluate_vae(process_id: str, num_images: int = 1):
 
 
 @router.get("/get_image/{process_id}/{image_idx}")
-async def get_image(process_id: str, image_idx: int):
+async def get_image(
+    process_id: str = Path(..., regex="^[a-zA-Z0-9_-]+$"),
+    image_idx: int = Path(..., ge=0)
+):
 
     filename = f"generated_{process_id}_{image_idx}.png"
 

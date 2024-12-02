@@ -8,11 +8,12 @@ import os
 from app.ai_models.vae_model import VAE, vae_loss
 from app.ai_models.vae_datasets import CustomImageDataset
 from app.core.config import settings
+from app.api.vae.schemas import ResponseModel
 
 router = APIRouter()
 
-@router.post("/train/")
-async def train_vae(process_id: str):
+@router.post("/train/", response_model=ResponseModel)
+async def train_vae(process_id: str, epochs: int = 10):
     EXTRACT_DIR = settings.extracted_dataset_dir
     SAVE_MODEL_DIR = settings.save_model_dir
     
@@ -31,7 +32,7 @@ async def train_vae(process_id: str):
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     # 학습
-    num_epochs = 10
+    num_epochs = epochs
     model.train()
     for epoch in range(num_epochs):
         total_loss = 0
