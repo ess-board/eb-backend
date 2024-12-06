@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     extracted_dataset_dir: str
     save_model_dir: str
     generated_images_dir: str
+    distribution_graph_dir: str
 
     class Config:
         env_file = ".env"
