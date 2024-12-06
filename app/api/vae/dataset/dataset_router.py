@@ -33,6 +33,7 @@ async def upload_zip(zip_file: UploadFile = File(...)):
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall(unique_extract_folder)
 
+    # Flatten folder structure
     for dir_path in Path(unique_extract_folder).rglob('*'):
         if dir_path.is_dir():
             for file_path in dir_path.iterdir():
@@ -40,12 +41,13 @@ async def upload_zip(zip_file: UploadFile = File(...)):
                     shutil.move(str(file_path), unique_extract_folder)
             shutil.rmtree(dir_path)
 
+    # Delete non-PNG, JPG, JPEG files
     for file_path in Path(unique_extract_folder).rglob('*'):
-        if file_path.is_file() and file_path.suffix.lower() != ".png":
-            raise HTTPException(status_code=400, detail="압축 해제된 폴더에 PNG 파일 이외의 파일이 포함되어 있습니다.")
+        if file_path.is_file() and file_path.suffix.lower() not in [".png", ".jpg", ".jpeg"]:
+            file_path.unlink()  # Delete the file
 
     return {
         "status": "success",
-        "message": "이미지가 성공적으로 업로드되고 압축이 해제되었습니다.",
+        "message": "이미지가 성공적으로 업로드되고 압축이 해제되었습니다. PNG, JPG, JPEG 이외의 파일은 삭제되었습니다.",
         "process_id": process_id
     }

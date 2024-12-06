@@ -13,7 +13,13 @@ from app.api.vae.schemas import ResponseModel
 router = APIRouter()
 
 @router.post("/train/", response_model=ResponseModel)
-async def train_vae(process_id: str, epochs: int = 10):
+async def train_vae(process_id: str, epochs: int = 10, max_images: int = 1000):
+    """
+    Args:
+        process_id (str): 데이터셋 식별자
+        epochs (int): 학습 에포크 수
+        max_images (int): 로드할 최대 이미지 개수
+    """
     EXTRACT_DIR = settings.extracted_dataset_dir
     SAVE_MODEL_DIR = settings.save_model_dir
     
@@ -25,7 +31,7 @@ async def train_vae(process_id: str, epochs: int = 10):
     transform = transforms.Compose([
         transforms.ToTensor(),
     ])
-    dataset = CustomImageDataset(folder_path, transform=transform, resize=(64, 64))
+    dataset = CustomImageDataset(folder_path, transform=transform, resize=(64, 64), max_images=max_images)
     dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
 
     model = VAE()
